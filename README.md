@@ -36,6 +36,7 @@ the db is mongo, please run the following commands:
 Follow the installation guide for your operating system: https://docs.docker.com/get-docker/
 
 # initiating mongo db:
+
 you can use the following command:
 npm run start:init instead of the next commands:
 

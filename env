@@ -1,0 +1,4 @@
+API_URL=https://favqs.com/api/quotes
+FAVQS_API_KEY=favqs_token-here
+MONGO_URI=mongodb://localhost:27017/quotes_db
+PORT=5000

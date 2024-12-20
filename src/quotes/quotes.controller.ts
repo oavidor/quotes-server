@@ -12,7 +12,6 @@ export class QuotesController {
     @ValidateFetchQuotesQuery() query: { count: number; filter?: string },
   ) {
     try {
-      console.log('query', query.count, query.filter);
       return await this.quotesService.fetchQuotes(query.count, query.filter);
     } catch (error) {
       const errorMessage = parseErrorMessage(error, 'Failed to fetch quotes:');

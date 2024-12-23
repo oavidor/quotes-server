@@ -35,9 +35,7 @@ export class QuotesService {
 
       const response = await axios.get(this.API_URL, { headers, params });
 
-      const quotes = await this.handleResponse(response);
-      await this.saveQuotes(quotes);
-
+      const quotes = await this.handleResponse(response, filter);
       return this.getRandomQuotes(quotes, count);
     } catch (error) {
       const errorMessage = parseErrorMessage(error, 'Error fetching quotes:');
@@ -51,7 +49,7 @@ export class QuotesService {
    * @param response The response object from the external API
    * @returns An array of quotes
    */
-  private async handleResponse(response): Promise<Quote[]> {
+  private async handleResponse(response, filter: string): Promise<Quote[]> {
     if (response.status === 200) {
       const rateLimitRemaining = parseInt(
         response.headers['rate-limit-remaining'],
@@ -60,7 +58,7 @@ export class QuotesService {
 
       if (rateLimitRemaining <= 0) {
         console.warn('Rate limit exceeded, fetching quotes from the database.');
-        return this.quoteModel.find().exec();
+        return await this.fetchQuotesFromDb(filter);
       }
 
       if (response.data.error_code) {
@@ -80,6 +78,9 @@ export class QuotesService {
         throw new Error('No quotes found');
       }
 
+      if (response.data.quotes.length > 0) {
+        await this.saveQuotes(response.data.quotes);
+      }
       return response.data.quotes;
     }
 
@@ -96,6 +97,21 @@ export class QuotesService {
     }
 
     throw new Error(`Unhandled response status: ${response.status}`);
+  }
+
+  /**
+   * Fetch quotes from the database with filtering by tags and limit.
+   * @param limit The number of quotes to fetch from the database
+   * @param filter The tag or tags to filter quotes by
+   * @returns An array of quotes from the database
+   */
+  private async fetchQuotesFromDb(
+    filter?: string,
+    limit: number = 100,
+  ): Promise<Quote[]> {
+    const filterCondition = filter ? { tags: { $in: [filter] } } : {};
+
+    return await this.quoteModel.find(filterCondition).limit(limit).exec();
   }
 
   /**

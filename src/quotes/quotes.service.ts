@@ -82,15 +82,11 @@ export class QuotesService {
         await this.saveQuotes(response.data.quotes);
       }
       return response.data.quotes;
-    }
-
-    if (response.status === 404) {
+    } else if (response.status === 404) {
       // in this status, if it is requested in the design we can also use fetch from db here
       console.error('Resource not found.');
       throw new Error('Status 404, Resource not found');
-    }
-
-    if (response.status === 500) {
+    } else if (response.status === 500) {
       // in this status, if it is requested in the design we can also use fetch from db here
       console.error('Server error from the external API.');
       throw new Error('Status 500, Server error, please try again later');
